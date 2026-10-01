@@ -90,11 +90,29 @@ result = router.predict(state, questions)
 print(result)
 ```
 
+### Sample Result
+
 The result can contain probabilities such as:
 
-* **Department:** billing — 87.11%
-* **Urgency:** probability distributed across four levels
-* **Refund requested:** 73.73% yes
+```text
+Department:
+  billing   87.11%
+  support    9.70%
+  sales      3.19%
+
+Urgency:
+  Low        15.20%
+  Medium     44.21%
+  High       27.51%
+  Critical   13.09%
+
+Refund requested:
+  Yes        73.73%
+```
+
+The selected department is billing, with an 87.11% probability.
+For urgency, Laya returns probabilities across the four levels rather than simply saying "medium." The resulting score of 1.3848 represents the probability-weighted urgency level.
+For noul, a value of 0.7373 means Laya estimates a 73.73% probability of a positive/yes answer.
 
 Instead of generating a paragraph of text, the application receives **structured decision data** that can be passed directly into business logic.
 
@@ -116,6 +134,23 @@ curl -X POST http://localhost:8000/v1/systemone \
   }'
 ```
 
+A response can look like:
+
+```json
+{
+  "answers": {
+    "is_urgent": {
+      "type": "noul",
+      "noul": 0.7373,
+      "confidence": 0.7373,
+      "answer_confidence": 0.7373
+    }
+  }
+}
+```
+
+Here, `noul: 0.7373` means Laya estimated a 73.73% probability that the message conveys urgency.
+
 The API returns structured JSON containing the decision, probability, confidence, routing information, and usage details.
 
 This makes Laya interesting not only for Python applications, but also for **microservices, existing applications, and language-independent systems** that can communicate over HTTP.
@@ -134,16 +169,18 @@ The overall architecture is simple:
 
 ```mermaid
 flowchart TD
-    A[/Unstructured Input/] -->|Evaluated by| B(Laya Decision Engine)
-    B -->|Outputs| C[(Structured Probabilities)]
-    C -->|Passed to| D{Business Rules / Workflow}
-    D -->|Triggers| E([Action])
+    A["Unstructured Input"] --> B["Laya Decision Engine"]
+    B --> C["Structured Probabilities"]
+    C --> D["Business Rules / Workflow"]
+    D --> E["Action"]
 
-    style A fill:#E8F1FB,stroke:#2563EB,stroke-width:2px,color:#1E3A5F
-    style B fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#3B0764
-    style C fill:#E0F2FE,stroke:#0284C7,stroke-width:2px,color:#0C4A6E
-    style D fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
-    style E fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
+    B -.-> F["Choice"]
+    B -.-> G["Score"]
+    B -.-> H["Noul"]
+
+    F --> C
+    G --> C
+    H --> C
 ```
 
 One thing I noticed during testing is that Laya also reports confidence and calibration information. The checkpoint I tested produced a calibration warning, so I would **validate these probabilities against your own production data before using them as hard business thresholds**.
