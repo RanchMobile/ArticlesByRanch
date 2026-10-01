@@ -138,9 +138,12 @@ flowchart TD
     B -->|Outputs| C[(Structured Probabilities)]
     C -->|Passed to| D{Business Rules / Workflow}
     D -->|Triggers| E([Action])
-    
-    style B fill:#f9f,stroke:#333,stroke-width:2px
-    style E fill:#bfb,stroke:#333,stroke-width:2px
+
+    style A fill:#E8F1FB,stroke:#2563EB,stroke-width:2px,color:#1E3A5F
+    style B fill:#EDE9FE,stroke:#7C3AED,stroke-width:2px,color:#3B0764
+    style C fill:#E0F2FE,stroke:#0284C7,stroke-width:2px,color:#0C4A6E
+    style D fill:#FEF3C7,stroke:#D97706,stroke-width:2px,color:#78350F
+    style E fill:#DCFCE7,stroke:#16A34A,stroke-width:2px,color:#14532D
 ```
 
 One thing I noticed during testing is that Laya also reports confidence and calibration information. The checkpoint I tested produced a calibration warning, so I would **validate these probabilities against your own production data before using them as hard business thresholds**.
